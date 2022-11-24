@@ -1,0 +1,210 @@
+<div class="content pt-5 container">
+    <section>
+        <h2 class="mt-2 pb-4 border-bottom">Allgemeine Einstellungen</h2>
+
+        <div class="section__item container pt-4 pb-4 border-bottom">
+            <h3>Passwort ändern</h3>
+            <p>Das Passwort für den Admin Zugang kann hier einfach geändert werden. Klicken Sie dazu auf "Passwort Ändern", um weitergeleitet zu werden.</p>
+            <a href="/admin/change-password/" class="c-link">Passwort Ändern</a>
+        </div>
+
+        <div class="section__item container pt-4 pb-4 border-bottom">
+            <h3>Admin Email Adressen</h3>
+            <p>Diese Emails werden unter anderem benutzt um den Admin login zu reaktivieren. Sie können Adressen hinzufügen und entfernen. Außerdem gibt wa eine offizielle Email Adresse, diese kann auch hier geändert werden.</p>
+            <div class="email-viewer mb-5" style="max-width: 500px; max-height: 180px; overflow-y: auto;">
+                <%
+                try {
+                    let i = 0;
+                    
+                    emailAddresses.forEach(email => {
+                %>
+                <div id="viewer-item-<%= i %>" class="viewer__item pt-2 pb-2 d-flex justify-content-between">
+                    <h6><%= email %></h6>
+                    <button onclick="deleteAddress('<%= email %>', <%= i %>)" id="delete-button-<%= i %>" class="btn btn-sm" style="box-shadow: none!important; height: 24px; line-height: .7rem;">
+                        <span style="font-size: 1.3rem;">
+                            <div id="first" style="display: inline-block;">×</div>
+                            <div id="second" style="display: none">
+                                <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </span>
+                    </button>
+                </div>
+                <%
+                    i = i + 1;
+                    })
+                } catch (e) {
+                %>
+                <span class="text-danger" style="user-select:none;">Es gab einen Fehler beim Anzeigen der Email Adressen!</span>
+                <% } %>
+            </div>
+
+            <div class="form mb-5">
+                <h5>Adresse hinzufügen</h5>
+                <p>Geben Sie eine Email Adresse an um sie hinzuzufügen</p>
+
+                <div class="input-group" style="max-width: 500px;">
+                    <input class="form-control" type="email" id="add-email-address-input" placeholder="name@example.com">
+
+                    <button class="btn btn-outline-primary" style="border-bottom-right-radius: .25rem; border-top-right-radius: .25rem;" onclick="addAddress();" id="add-email-address-submit-button" disabled>
+                        <div id="first">Hinzufügen</div>
+                        <div id="second" style="display: none">
+                            <div class="spinner-border text-light spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <span>Lädt</span>
+                        </div>
+                    </button>
+
+                    <div id="add-email-address-invalid-feedback" class="invalid-feedback">Diese Email Adresse existiert nicht!</div>
+                </div>
+            </div>
+
+            <div class="form">
+                <h5>Offizielle Adresse</h5>
+                <p>Die offizielle Email Adresse wird beispielsweise beim deaktivierten Kontakt Formular und auf der Über Uns Seite angezeigt. Hier kann sie geändert werden. Sie kann auch versteckt werden, um Spam vorzubeugen. Ändern Sie dafür die Einstellungen <span class="c-link" onclick="linkToSetting('official-address-form');">Offizielle Email Adresse anzeigen</span>.</p>
+
+                <div class="input-group" style="max-width: 500px;">
+                    <input class="form-control" type="email" id="change-official-email-address-input" value="<% try { %><%= officialEmailAddress %><% } catch (e) { } %>" placeholder="<% try { if (officialEmailAddress == '') { %><%= 'Noch nicht angegeben' %><% } else { %><%= officialEmailAddress %><% } } catch (e) { %><%= 'Noch nicht angegeben' %><% } %>">
+
+                    <button class="btn btn-outline-primary" style="border-bottom-right-radius: .25rem; border-top-right-radius: .25rem;" onclick="changeOfficialAddress();" id="change-official-email-address-submit-button" <% try { if (officialEmailAddress == '') { %><%= 'disabled' %><% } } catch (e) { } %>>
+                        <div id="first">Ändern</div>
+                        <div id="second" style="display: none">
+                            <div class="spinner-border text-light spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <span>Lädt</span>
+                        </div>
+                    </button>
+
+                    <div id="change-official-email-address-invalid-feedback" class="invalid-feedback">Diese Email Adresse existiert nicht!</div>
+                </div>
+
+                <div class="form-check form-switch mt-3" id="official-address-form">
+                    <label class="form-check-label" for="show-official-email-address-checkbox">Offizielle Email Adresse anzeigen</label>
+                    <input class="form-check-input" type="checkbox" onchange="changeShowOfficialEmailAddressFunc()" id="show-official-email-address-checkbox" <% try { if (showOfficialEmailAddress == 'true') { %><%= 'checked' %><% } } catch (error) { %><%= 'checked' %><% } %>>
+
+                    <div class="spinner-border text-primary spinner-border-sm" style="margin-left: 40px; display: none;" id="show-official-email-address-loading-spinner" role="status">
+                        <span class="visually-hidden">Changing...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section__item container pt-4 pb-4 border-bottom">
+            <h3>Email Formular</h3>
+            <p>Hier sind alle Einstellungen für das Email Formular, ob es aktiv ist und wie lang das Interval zwischen den Emails sein soll.</p>
+            
+            <div class="form mb-4">
+                <h5>Status ändern</h5>
+                <p>Das Formular kann aktiviert und deaktiviert werden. Wenn es deaktiviert ist, kriegt der Benutzer auf der Seite eine Benachichtigung.</p>
+
+                <div class="form-check form-switch">
+                    <label class="form-check-label" for="email-form-checkbox">Status</label>
+                    <input class="form-check-input" type="checkbox" onchange="changeEmailFormActiveStateFunc()" id="email-form-active-state-checkbox" <% try { if (emailFormActiveState == 'true') { %><%= 'checked' %><% } } catch (error) { %><%= 'checked' %><% } %>>
+
+                    <div class="spinner-border text-primary spinner-border-sm" style="margin-left: 40px; display: none;" id="email-form-active-state-loading-spinner" role="status">
+                        <span class="visually-hidden">Changing...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form">
+                <h5>Interval ändern</h5>
+                <p>Das Interval ist die Zeit, die ein Nutzer warten muss, um die nächste Email zu schicken. Der Wert sollte ein paar Minuten betragen und kann hier geändert werden.</p>
+
+                <div class="input-group" style="max-width: 500px;">
+                    <span class="input-group-text" id="basic-addon1">Stunden:</span>
+                    <input class="form-control" type="number" min="0" max="100" id="change-email-interval-hour-input" value="<% try { if (currentEmailFormInterval.m == null || currentEmailFormInterval.h == null || /[^0-9]/.test(currentEmailFormInterval.m) || /[^0-9]/.test(currentEmailFormInterval.h) || currentEmailFormInterval.m.length < 1 || currentEmailFormInterval.h.length < 1) { } else { %><%= currentEmailFormInterval.h %><% } } catch (e) { } %>">
+
+                    <span class="input-group-text" id="basic-addon1">Minuten:</span>
+                    <input class="form-control" type="number" min="0" max="59" id="change-email-interval-minute-input" value="<% try { if (currentEmailFormInterval.m == null || currentEmailFormInterval.h == null || /[^0-9]/.test(currentEmailFormInterval.m) || /[^0-9]/.test(currentEmailFormInterval.h) || currentEmailFormInterval.m.length < 1 || currentEmailFormInterval.h.length < 1) { } else { %><%= currentEmailFormInterval.m %><% } } catch (e) { } %>">
+
+                    <button class="btn btn-outline-primary" style="border-bottom-right-radius: .25rem; border-top-right-radius: .25rem;" onclick="changeEmailInterval();" id="change-email-interval-submit-button">
+                        <div id="first">Ändern</div>
+                        <div id="second" style="display: none">
+                            <div class="spinner-border text-light spinner-border-sm" role="status">
+                                <span class="visually-hidden">Changing...</span>
+                            </div>
+                            <span>ändert</span>
+                        </div>
+                    </button>
+
+                    <% try { if (currentEmailFormInterval.m == null || currentEmailFormInterval.h == null || /[^0-9]/.test(currentEmailFormInterval.m) || /[^0-9]/.test(currentEmailFormInterval.h) || currentEmailFormInterval.m.length < 1 || currentEmailFormInterval.h.length < 1) { %><span class="text-danger mt-3">Es gab einen Internen Fehler beim anzeigen des aktuellen Intervals. Sie sollten das Interval neu setzen!</span><% } } catch (e) { %><span class="text-danger mt-3">Es gab einen Internen Fehler beim anzeigen des aktuellen Intervals. Sie sollten das Interval neu setzen!</span><% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="section__item container pt-4 pb-4 border-bottom">
+            <h3>Öffnungs und Telefonzeiten</h3>
+            <p>Die Öffnungs und Telefonzeiten werden auf der Über Uns und Startseite angegeben. Sie können einzeln geändert werden. Das Format muss <span class="c-quote">12 - 18:05</span> sein.</p>
+
+            <div class="form">
+                <h5 class="mb-3">Öffnungszeiten ändern</h5>
+                <div class="input-group mb-3" style="max-width: 500px;">
+                    <span class="input-group-text">Montag</span>
+                    <input id="mo-opening-time-input" onchange="changeOpeningTimesInputFunc('mo-opening-time-input')" oninput="changeOpeningTimesInputFunc('mo-opening-time-input')" class="d-inline-block form-control" type="text" value="<% try { if (typeof openingTimes.mo != 'undefined') { %><%= openingTimes.mo %><% } } catch (e) { } %>">
+                    <span class="input-group-text">Dienstag</span>
+                    <input id="di-opening-time-input" onchange="changeOpeningTimesInputFunc('di-opening-time-input')" oninput="changeOpeningTimesInputFunc('di-opening-time-input')" class="d-inline-block form-control" type="text" value="<% try { if (typeof openingTimes.di != 'undefined') { %><%= openingTimes.di %><% } } catch (e) { } %>">
+                </div>
+                
+                <div class="input-group mb-3" style="max-width: 500px;">
+                    <span class="input-group-text">Mittwoch</span>
+                    <input id="mi-opening-time-input" onchange="changeOpeningTimesInputFunc('mi-opening-time-input')" oninput="changeOpeningTimesInputFunc('mi-opening-time-input')" class="d-inline-block form-control" type="text" value="<% try { if (typeof openingTimes.mi != 'undefined') { %><%= openingTimes.mi %><% } } catch (e) { } %>">
+                    <span class="input-group-text">Donnerstag</span>
+                    <input id="do-opening-time-input" onchange="changeOpeningTimesInputFunc('do-opening-time-input')" oninput="changeOpeningTimesInputFunc('do-opening-time-input')" class="d-inline-block form-control" type="text" value="<% try { if (typeof openingTimes.do != 'undefined') { %><%= openingTimes.do %><% } } catch (e) { } %>">
+                </div>
+                
+                <div class="input-group mb-3" style="max-width: 500px;">
+                    <span class="input-group-text">Freitag</span>
+                    <input id="fr-opening-time-input" onchange="changeOpeningTimesInputFunc('fr-opening-time-input')" oninput="changeOpeningTimesInputFunc('fr-opening-time-input')" class="d-inline-block form-control" type="text" value="<% try { if (typeof openingTimes.fr != 'undefined') { %><%= openingTimes.fr %><% } } catch (e) { } %>">
+                    <span class="input-group-text">Samstag</span>
+                    <input id="sa-opening-time-input" onchange="changeOpeningTimesInputFunc('sa-opening-time-input')" oninput="changeOpeningTimesInputFunc('sa-opening-time-input')" class="d-inline-block form-control" type="text" value="<% try { if (typeof openingTimes.sa != 'undefined') { %><%= openingTimes.sa %><% } } catch (e) { } %>">
+                </div>
+
+                <div class="input-group mb-4" style="max-width: 500px;">
+                    <button class="btn btn-outline-primary" style="border-bottom-right-radius: .25rem; border-top-right-radius: .25rem;" onclick="changeOpeningTimes();" id="change-opening-times-submit-button">
+                        <div id="first">Ändern</div>
+                        <div id="second" style="display: none">
+                            <div class="spinner-border text-light spinner-border-sm" role="status">
+                                <span class="visually-hidden">Changing...</span>
+                            </div>
+                            <span>ändert</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <section>
+        <h2 class="mt-2 pb-4 border-bottom">Erweiterte Einstellungen</h2>
+
+        <div class="section__item container pt-4 pb-4 border-bottom">
+            <h3>Bootstrap Quelle</h3>
+            <p>Bootstrap kann online und offline genutzt werden. Wenn die Einstellung auf Online steht, wird die JS und die CSS Datei von <a class="c-link" target="_blank" href="https://cdn.jsdelivr.net/">JSDelivr</a> eingebunden. Steht sie auf Offline, wird die lokale JS und CSS Datei auf dem Server genutzt. Die Offline Version kann veraltet sein</p>
+            <p>Unten wird angezeigt, ob die Seiten von diesem Client aus erreichbar sind. Der Test wird alle 15 Sekunden durchgeführt. Das kann durch den Button "Test stoppen" beendet werden.</p>
+            <form>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="change-bootstrap-state-radio" id="change-bootstrap-state-radio-online" value="0" onchange="changeBootstrapStateRadioChanged();" checked>
+                    <label class="form-check-label" for="change-bootstrap-state-radio-online">Online (empfolen)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="change-bootstrap-state-radio" id="change-bootstrap-state-radio-offline" value="1" onchange="changeBootstrapStateRadioChanged();">
+                    <label class="form-check-label" for="change-bootstrap-state-radio-offline">Offline</label>
+                </div>
+            </form>
+
+            <div id="jsdelivr-status" class="mt-4 mb-3">
+                <p id="css-view">Bootstrap CSS<span style="margin-left: 3rem;" class="btn btn-secondary btn-sm">Wird getestet...</span></p>
+                <p id="js-view">Bootstrap JS<span style="margin-left: 3rem;" class="btn btn-secondary btn-sm">Wird getestet...</span></p>
+                <p id="bootstrap-status-interval-deactivated-feedback">Der Status wird nicht mehr getestet. Durch Neuladen der Seite wird der Test wieder aktiviert</p>
+            </div>
+
+            <button class="btn btn-outline-primary" id="stop-bootstrap-status-interval-button" onclick="stopBootstrapStatusInterval();">Test stoppen</button>
+        </div>
+    </section>
+</div>
